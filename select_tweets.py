@@ -48,6 +48,7 @@ d_counts['moving_diff'].plot()
 # ================================
 
 # %%
-tweet_s = tweets[tweets.created == '2018-03-29']
+tweets_s = tweets[tweets.created_date == '2018-03-29']
+tweets_s.to_csv('sample_tweets.csv')
 
 # %%

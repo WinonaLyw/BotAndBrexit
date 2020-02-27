@@ -3,23 +3,23 @@ import numpy as np
 import pandas as pd
 
 # %% read csv using pandas
-accounts = pd.read_csv("BotScore73KUsers.csv")# , encoding='latin-1'
+accounts = pd.read_csv("BotScore73KUsers.csv")
 print (len(accounts))
 
-# %% head dataframe
-accounts.head(2)
+# %% read sample tweets
+tweets_s = pd.read_csv('sample_tweets.csv')
 
-# %% 0.01 & 0.99 quantiles score
-q1, q2 = accounts.prob.quantile([0.01,0.99])
-print (q1, q2)
+# %% select user from the sample tweets
+users_s = set(tweets_s.screenName)
+accounts_s = accounts[accounts.user.isin(users_s)]
 
-# %% retrieve protential human account (score <= 0.01 quantile)
-human = accounts[accounts.prob <= q1]
-print (len(human))
-human.to_csv("human_accounts.csv")
+len (accounts_s)  # 11699
 
-# %% retrieve protential bot account (score >= 0.99 quantile)
-bots = accounts[accounts.prob >= q2]
-print (len(bots))
-bots.to_csv("bots_accounts.csv")
+# %% 0.75 & 0.90 quantiles score
+q1, q2, q3 = accounts.prob.quantile([0.5, 0.75, 0.90])
+print (q1, q2, q3)  # (0.25, 0.33, 0.4)
 
+# %%
+accounts_s.to_csv('sample_accounts.csv')
+
+# %%
