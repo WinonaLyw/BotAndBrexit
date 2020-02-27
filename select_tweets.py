@@ -1,30 +1,53 @@
 # %% import
 import numpy as np
 import pandas as pd
-from nltk.tokenize import TweetTokenizer
+import matplotlib.plot as plt
 
 # %% read tweets
 tweets = pd.read_csv("Tweets1.267Million.csv" , encoding='latin-1')
+
 tweets.head(4)
 
-# %% read terget accounts
-human = pd.read_csv("human_accounts.csv")
-bots = pd.read_csv("bots_accounts.csv")
+# tweets.statusSource[0:7]
 
-# %% concatenate two account dataframes
-accounts = pd.concat([human, bots], ignore_index=True)
+# %% daily tweets count
+# split date from created time
+tweets['created_date'] = [t.split(' ')[0] for t in tweets.created]
 
-accounts.head(2)
-# %% select tweets tweeted by sample accounts
-acc_tweets = tweets[tweets['screenName'].isin(accounts.user)]
-print (len(acc_tweets))
+# groupby date to get daily tweets count from 1 Jan to 31 Mar 2018
+d_counts = tweets[['created_date', 'created']].groupby('created_date').count()
+
+# plot daily tweets count
+d_counts['created'].plot()
+# list top 10 
+d_counts.nlargest(10, 'created')
+
+# %% daily difference
+# calculate daily difference comparing the previous day
+d_counts['moving_diff'] = 0.0
+
+dates = d_counts.index
+
+for i in range(1, len(dates)):
+    d = dates[i]
+    prev_d = dates[i-1]
+    d_counts.loc[d, 'moving_diff'] = d_counts.loc[d]['created'] - d_counts.loc[prev_d]['created']
+    # d_counts.loc[d, 'moving_diff'] = (d_counts.loc[d]['created'] - d_counts.loc[prev_d]['created']) / d_counts.loc[prev_d]['created'] * 100
+
+# list top 10 / least 10 (increase/decrease the most)
+d_counts.nlargest(10, 'moving_diff')
+d_counts.nsmallest(10, 'moving_diff')
+
+d_counts['moving_diff'].plot()
+
+# ================================
+# 2018-03-29 
+# 1. top 10 tweets
+# 2. top 10 increase
+# 3. top 10 decrease in 2018-03-30
+# ================================
 
 # %%
-tkznr = TweetTokenizer()
-acc_tweets['text_token'] = acc_tweets.apply(lambda row: tknzr.tokenize(row['text']), axis=1)
-acc_tweets.head(4)
-
-# %%
-acc_tweets.to_csv("sample_tweets.csv")
+tweet_s = tweets[tweets.created == '2018-03-29']
 
 # %%
