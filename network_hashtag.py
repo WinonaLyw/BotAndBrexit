@@ -20,6 +20,8 @@ accounts = pd.read_csv(gv.fname_sample_accounts, index_col = 0)
 acc = accounts[['user','prob','b_2']].set_index(['user'], verify_integrity=True)
 tweets_s = tweets_s.join(acc, on=['screenName'], how='left')
 
+tweets_s = tweets_s.fillna({'hashtags':''})
+tweets_s['hashtags'] = [str(s).split(',') for s in tweets_s['hashtags']]
 
 # %% sample huamn account to have same size as bot accounts
 M = len(tweets_s[tweets_s.b_2 == 1])
@@ -30,7 +32,7 @@ def hashtag_occurrence(df):
     hashtag = pd.DataFrame(columns=['T', 'timeslot', 'count'])
     for row in df[['hashtags','timeslot']].iterrows():
         slot = row[1]['timeslot']
-        t_l = row[1]['hashtags'].split(',')
+        t_l = row[1]['hashtags']
         if len(t_l) > 0:
             for i in range(0, len(t_l)):
                 hashtag = hashtag.append({'T': t_l[i].lower(), 'timeslot':slot, 'count':1}, ignore_index=True)
@@ -69,7 +71,9 @@ def plot_hashtag_time_flow(df_b, df_h, tag):
     plt.close()
 
 # %%
-for tag in ['#brexit', '#eu', '#nhs', '#article50', '#12months2go', '#politics', '#stopbrexi', '#stopbrexit'] :
+tag_list = list(set(hashtag_oc['T']))
+for tag in tag_list:
+    # ['#brexit', '#eu', '#nhs', '#article50', '#12months2go', '#politics', '#stopbrexi', '#stopbrexit'] 
     plot_hashtag_time_flow(hashtag_b_oc, hashtag_h_oc, tag)
     # sample
     # plot_hashtag_time_flow(hashtag_b_oc, hashtag_h_sample_oc, tag)
@@ -79,7 +83,7 @@ def hashtag_cooccurrence(df):
     hashtag = pd.DataFrame(columns=['T1', 'T2', 'timeslot', 'count'])
     for row in df[['hashtags','timeslot']].iterrows():
         slot = row[1]['timeslot']
-        t_l = row[1]['hashtags'].split(',')
+        t_l = row[1]['hashtags']
         if len(t_l) > 0:
             if len(t_l) == 1 and len(t_l[0])>0:
                 hashtag = hashtag.append({'T1': t_l[0].lower(), 'timeslot':slot, 'count':1}, ignore_index=True)
@@ -115,6 +119,8 @@ def network_summary(gDict):
         h = t%24
         print ('Hourly Hashtag Co-occurence {0:0=2d}:00 to {1:0=2d}:00'.format(h, h+1))
 
+        print ('number of nodes: ', len(g.nodes()))
+        print ('number of edges: ', len(g.edges()))
         print ('Density: ', nx.density(g))
         print ('Assortativity coefficient : ', nx.degree_assortativity_coefficient(g))
         print ('Number of connected components: ', nx.number_connected_components(g))
@@ -122,8 +128,10 @@ def network_summary(gDict):
         # Compute the shortest-path betweenness centrality for nodes.
         print ('Betweenness centrality of #brexit: ', nx.betweenness_centrality(g)['#brexit'])
         # print ('Degree: ', g.degree(weight='count'))
-        result_dict[t] = {'Density':nx.density(g),'Assortativity':nx.degree_assortativity_coefficient(g), \
-            'ConnectedComponents':nx.number_connected_components(g), 'Clustering#brexit':nx.clustering(g,'#brexit'), \
+        result_dict[t] = {'Nodes':len(g.nodes()), 'Edges': len(g.edges()), \
+            'Density':nx.density(g),'Assortativity':nx.degree_assortativity_coefficient(g), \
+            'ConnectedComponents':nx.number_connected_components(g), \
+            'Clustering#brexit':nx.clustering(g,'#brexit'), \
             'Centrality#brexit':nx.betweenness_centrality(g)['#brexit']}
     return result_dict
 
@@ -157,7 +165,7 @@ def draw_interactive_hourly_network(df, fname):
     for t in timeslot:
         # plt.subplot(len(timeslot),2,t+1)
         h = t%24
-        figs.append(draw_network(df[df.timeslot == t], title='Hourly Hashtag Co-occurence {0:0=2d}:00 to {1:0=2d}:00'.format(h, h+1)))
+        figs.append(interactive_network.draw_network(df[df.timeslot == t], title='Hourly Hashtag Co-occurence {0:0=2d}:00 to {1:0=2d}:00'.format(h, h+1)))
     # interactive_network.figures_to_html(figs, fname)
 
 # %%       
@@ -172,5 +180,23 @@ interactive_network.draw_network(hashtag_b[['T1', 'T2', 'count']].groupby(['T1',
 interactive_network.draw_network(hashtag_h[['T1', 'T2', 'count']].groupby(['T1', 'T2']).sum().reset_index()).write_html('output/Daily_human.html')
 interactive_network.draw_network(hashtag_h_sample[['T1', 'T2', 'count']].groupby(['T1', 'T2']).sum().reset_index()).write_html('output/Daily_human_sample.html')
 
+
+# %%
+def plot_hashtag_pair_time_flow(df_b, df_h, tag_pair):
+    t_b = df_b[df_b['T1']==tag_pair[0]][df_b['T2'] == tag_pair[1]].sort_values(by=['timeslot'])
+    t_h = df_h[df_h['T1']==tag_pair[0]][df_h['T2'] == tag_pair[1]].sort_values(by=['timeslot'])
+    plt.plot(t_b['timeslot']%24, t_b['count'], 'r')
+    plt.plot(t_h['timeslot']%24, t_h['count'], 'g')
+    plt.title('No. of tweets containing {0} pair per hour'.format(tag_pair))
+    plt.xlabel('hour of day')
+    plt.legend(labels=['Bot network', 'Human network'])
+    plt.xlim(0, 23)
+    plt.xticks(range(0, 24, 4), ['{0:0=2d}:00'.format(i) for i in range(0, 24, 4)])
+    plt.savefig('output/hourly_pair_trade_{0}_{1}.png'.format(tag_pair[0], tag_pair[1]))
+    plt.close()
+
+
+plot_hashtag_pair_time_flow(hashtag_b, hashtag_h_sample, ('#brexit', '#politics'))
+plot_hashtag_pair_time_flow(hashtag_b, hashtag_h_sample, ('#bbcbreakfast', '#brexit'))
 
 # %%

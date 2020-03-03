@@ -122,7 +122,7 @@ def draw_network(df, title='Hourly Hashtag Co-occurence'):
                 xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
                 yaxis=dict(showgrid=False, zeroline=False, showticklabels=False))
                 )
-    fig.show()
+    # fig.show()
     # fig.write_html('output/{0}.html'.format(fname), auto_open=True)
     return fig
 
