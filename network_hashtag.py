@@ -124,15 +124,16 @@ def network_summary(gDict):
         print ('Density: ', nx.density(g))
         print ('Assortativity coefficient : ', nx.degree_assortativity_coefficient(g, weight='count'))
         print ('Number of connected components: ', nx.number_connected_components(g))
+        print ('Diameter of largest connected component: ', nx.diameter(max(nx.connected_component_subgraphs(g), key=len)))
         print ('Clustering coefficient of #brexit: ', nx.clustering(g,'#brexit'))
-        # Compute the shortest-path betweenness centrality for nodes.
-        print ('Betweenness centrality of #brexit: ', nx.betweenness_centrality(g)['#brexit'])
+    
         # print ('Degree: ', g.degree(weight='count'))
         result_dict[t] = {'Nodes':len(g.nodes()), 'Edges': len(g.edges()), \
-            'Density':nx.density(g),'Assortativity':nx.degree_assortativity_coefficient(g), \
+            'Density':nx.density(g), \
+            'Assortativity':nx.degree_assortativity_coefficient(g), \
             'ConnectedComponents':nx.number_connected_components(g), \
-            'Clustering#brexit':nx.clustering(g,'#brexit'), \
-            'Centrality#brexit':nx.betweenness_centrality(g)['#brexit']}
+            'Diameter':nx.diameter(max(nx.connected_component_subgraphs(g), key=len)), \
+            'Clustering#brexit':nx.clustering(g,'#brexit')}
     return result_dict
 
 def hourly_G(df):
@@ -147,12 +148,12 @@ def hourly_G(df):
 print ("Bot Hashtags")
 bot_dict = network_summary(hourly_G(hashtag_b))
 bot_df = pd.DataFrame.from_dict(bot_dict, orient='index')
-bot_df.to_csv('data/Bot_hourly_network_stat.csv')
+bot_df.to_csv('output/Bot_hourly_network_stat.csv')
 
 print ("Human Hashtags")
 human_dict = network_summary(hourly_G(hashtag_h_sample))
 human_df = pd.DataFrame.from_dict(human_dict, orient='index')
-human_df.to_csv('data/Human_hourly_network_stat.csv')
+human_df.to_csv('output/Human_hourly_network_stat.csv')
 
 # %%
 import interactive_network
