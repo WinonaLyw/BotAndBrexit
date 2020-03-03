@@ -129,11 +129,11 @@ def network_summary(gDict):
     
         # print ('Degree: ', g.degree(weight='count'))
         result_dict[t] = {'Nodes':len(g.nodes()), 'Edges': len(g.edges()), \
-            'Density':nx.density(g), \
-            'Assortativity':nx.degree_assortativity_coefficient(g), \
+            'Density':'%.2f'%(nx.density(g)), \
+            'Assortativity':'%.2f'%(nx.degree_assortativity_coefficient(g)), \
             'ConnectedComponents':nx.number_connected_components(g), \
             'Diameter':nx.diameter(max(nx.connected_component_subgraphs(g), key=len)), \
-            'Clustering#brexit':nx.clustering(g,'#brexit')}
+            'Clustering#brexit':'%.2f'%(nx.clustering(g,'#brexit'))}
     return result_dict
 
 def hourly_G(df):

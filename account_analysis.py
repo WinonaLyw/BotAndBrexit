@@ -83,8 +83,11 @@ def precision_recall(labels):
                 TN +=1
             else :
                 FP += 1
-    print ('precision :', TP / (TP + FP))
-    print ('recall :', TP/ (TP + FN))
+    precision = TP / (TP + FP)
+    recall = TP/ (TP + FN)
+    print ('precision :', precision)
+    print ('recall :', recall)
+    print ('F1 :', 2 * precision * recall / (precision + recall))
 
 # %%  === 2
 attributes = accounts.loc[:, attribute_col]
