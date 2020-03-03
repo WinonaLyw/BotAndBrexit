@@ -122,7 +122,7 @@ def network_summary(gDict):
         print ('number of nodes: ', len(g.nodes()))
         print ('number of edges: ', len(g.edges()))
         print ('Density: ', nx.density(g))
-        print ('Assortativity coefficient : ', nx.degree_assortativity_coefficient(g))
+        print ('Assortativity coefficient : ', nx.degree_assortativity_coefficient(g, weight='count'))
         print ('Number of connected components: ', nx.number_connected_components(g))
         print ('Clustering coefficient of #brexit: ', nx.clustering(g,'#brexit'))
         # Compute the shortest-path betweenness centrality for nodes.
