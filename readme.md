@@ -1,5 +1,6 @@
 # Bot and #Brexit
 ### Analysis of bot influnce with tweets having #Brexit hashtags
+***(original data set is not included in the repository)***
 
 ## Data Source
 1. 1,267,607 tweets tagged with #brexit from 1st Jan to 31st Mar, 2018

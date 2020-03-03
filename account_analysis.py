@@ -47,9 +47,14 @@ print (km.labels_)
 print (km.cluster_centers_)
 
 print (np.unique(km.labels_, return_counts=True))
+print ("Silhouette score: ", metrics.silhouette_score(attributes, km.labels_))
+print (precision_recall(km.labels_))
+
 '''
 [11346,   353]
-one cluster got only 353 members
+Silhouette score:  0.8833455392588392
+precision : 0.2359421822668782
+recall : 0.9291912530371399
 '''
 # accounts['r_1'] = km.labels_
 
@@ -59,6 +64,27 @@ accounts = accounts.join(p_c.set_index(['platform'], verify_integrity=True), on=
 
 attribute_col.append('platform_cate')
 attribute_col.remove('common_platform')
+
+# %% calculate precision and recall of clustering result bot and bot score selected bot
+def precision_recall(labels):
+    bscore = list(accounts['b_1'])
+    TP = 0.0
+    FP = 0.0
+    TN = 0.0
+    FN = 0.0
+    for i in range(len(bscore)):
+        if bscore[i] == 1:
+            if labels[i] == bscore[i]:
+                TP += 1
+            else :
+                FN += 1
+        else :
+            if labels[i] == bscore[i]:
+                TN +=1
+            else :
+                FP += 1
+    print ('precision :', TP / (TP + FP))
+    print ('recall :', TP/ (TP + FN))
 
 # %%  === 2
 attributes = accounts.loc[:, attribute_col]
@@ -70,11 +96,14 @@ print (km2.labels_)
 print (km2.cluster_centers_)
 
 print (np.unique(km2.labels_, return_counts=True))
+print ("Silhouette score: ", metrics.silhouette_score(attributes, km2.labels_))
+print (precision_recall(km2.labels_))
 
 '''
-as same as first try
 [11346,   353]
-one cluster got only 353 members
+Silhouette score:  0.8833455392588392
+precision : 0.2359421822668782
+recall : 0.9291912530371399
 '''
 # accounts['r_2'] = km2.labels_
 
@@ -90,11 +119,15 @@ print (km3.labels_)
 print (km3.cluster_centers_)
 
 
-print (np.unique(km2.labels_, return_counts=True))
+print (np.unique(km3.labels_, return_counts=True))
+print ("Silhouette score: ", metrics.silhouette_score(attributes, km3.labels_))
+print (precision_recall(km3.labels_))
+
 '''
-as same as first try
 [11346,   353]
-one cluster got only 353 members
+Silhouette score:  0.8833455392588392
+precision : 0.2359421822668782
+recall : 0.9291912530371399
 '''
 
 # accounts['r_3'] = km3.labels_
@@ -111,9 +144,13 @@ print (km4.cluster_centers_)
 
 
 print (np.unique(km4.labels_, return_counts=True))
+print ("Silhouette score: ", metrics.silhouette_score(attributes, km4.labels_))
+print (precision_recall(km4.labels_))
 '''
 [6137, 5562]
-evenly clustered
+Silhouette score:  0.881060472116978
+precision : 0.6028985507246377
+recall : 0.07219715376605346
 '''
 
 # %% plot attributes againt botness score scatter
